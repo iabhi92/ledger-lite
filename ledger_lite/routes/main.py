@@ -1,6 +1,6 @@
 from datetime import date
 
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, session, url_for
 
 from ..auth import login_required
 from ..models import Account, Invoice, JournalEntry, account_balance
@@ -9,6 +9,13 @@ bp = Blueprint("main", __name__)
 
 
 @bp.route("/")
+def index():
+    if "user_id" in session:
+        return redirect(url_for("main.dashboard"))
+    return render_template("landing.html")
+
+
+@bp.route("/dashboard")
 @login_required
 def dashboard():
     today = date.today()
