@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Ledger Lite{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if current_user %}
+<header class="topbar no-print">
+  <div class="brand">Ledger Lite</div>
+  <nav>
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('accounts.list_accounts') }}">Accounts</a>
+    <a href="{{ url_for('journal.list_entries') }}">Journal</a>
+    <a href="{{ url_for('invoices.list_invoices') }}">Invoices</a>
+    <a href="{{ url_for('expenses.list_expenses') }}">Expenses</a>
+    <a href="{{ url_for('reports.trial_balance_view') }}">Reports</a>
+    {% if current_user.role == 'owner' %}
+    <a href="{{ url_for('users.list_users') }}">Users</a>
+    {% endif %}
+  </nav>
+  <div class="who">{{ current_user.username }} ({{ current_user.role }}) &middot; <a href="{{ url_for('auth.logout') }}">Log out</a></div>
+</header>
+{% endif %}
+<main class="container">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class="flashes no-print">
+      {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Balance sheet – Ledger Lite{% endblock %}
+{% block content %}
+<h1>Balance sheet</h1>
+<form method="get" class="inline-form no-print">
+  <label>As of <input type="date" name="as_of" value="{{ as_of }}"></label>
+  <button type="submit">Update</button>
+  <a href="{{ url_for('reports.balance_sheet_view', as_of=as_of, format='csv') }}">Download CSV</a>
+  <button type="button" onclick="window.print()">Print / PDF</button>
+</form>
+
+<h2>Assets</h2>
+<table>
+  <tbody>
+  {% for a, b in data.assets %}
+    <tr><td>{{ a.name }}</td><td class="num">{{ "%.2f"|format(b) }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th>Total assets</th><th class="num">{{ "%.2f"|format(data.total_assets) }}</th></tr></tfoot>
+</table>
+
+<h2>Liabilities</h2>
+<table>
+  <tbody>
+  {% for a, b in data.liabilities %}
+    <tr><td>{{ a.name }}</td><td class="num">{{ "%.2f"|format(b) }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th>Total liabilities</th><th class="num">{{ "%.2f"|format(data.total_liabilities) }}</th></tr></tfoot>
+</table>
+
+<h2>Equity</h2>
+<table>
+  <tbody>
+  {% for a, b in data.equity %}
+    <tr><td>{{ a.name }}</td><td class="num">{{ "%.2f"|format(b) }}</td></tr>
+  {% endfor %}
+  <tr><td>Retained earnings (current)</td><td class="num">{{ "%.2f"|format(data.retained_earnings) }}</td></tr>
+  </tbody>
+  <tfoot><tr><th>Total equity</th><th class="num">{{ "%.2f"|format(data.total_equity) }}</th></tr></tfoot>
+</table>
+
+<p class="muted">Assets should equal liabilities + equity: {{ "%.2f"|format(data.total_assets) }} vs {{ "%.2f"|format(data.total_liabilities + data.total_equity) }}</p>
+{% endblock %}

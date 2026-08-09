@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ invoice.number }} – Ledger Lite{% endblock %}
+{% block content %}
+<h1>{{ invoice.number }} <span class="tag">{{ invoice.status }}</span></h1>
+<p><strong>Customer:</strong> {{ invoice.customer.name }} ({{ invoice.customer.email or "no email" }})</p>
+<p><strong>Date:</strong> {{ invoice.date }} &middot; <strong>Due:</strong> {{ invoice.due_date or "—" }}</p>
+
+<table>
+  <thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th>Account</th><th class="num">Amount</th></tr></thead>
+  <tbody>
+  {% for l in invoice.lines %}
+    <tr>
+      <td>{{ l.description }}</td>
+      <td class="num">{{ "%.2f"|format(l.quantity) }}</td>
+      <td class="num">{{ "%.2f"|format(l.unit_price) }}</td>
+      <td>{{ l.income_account.name }}</td>
+      <td class="num">{{ "%.2f"|format(l.amount) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr><th colspan="4">Total</th><th class="num">{{ "%.2f"|format(invoice.total) }}</th></tr>
+    <tr><th colspan="4">Paid</th><th class="num">{{ "%.2f"|format(invoice.amount_paid) }}</th></tr>
+    <tr><th colspan="4">Balance due</th><th class="num">{{ "%.2f"|format(invoice.balance_due) }}</th></tr>
+  </tfoot>
+</table>
+
+<div class="actions no-print">
+  {% if invoice.status == 'draft' %}
+  <form method="post" action="{{ url_for('invoices.send_invoice', invoice_id=invoice.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">Send invoice</button>
+  </form>
+  {% endif %}
+  {% if current_user.role == 'owner' and invoice.status != 'void' %}
+  <form method="post" action="{{ url_for('invoices.void_invoice', invoice_id=invoice.id) }}" onsubmit="return confirm('Void this invoice? This reverses its ledger entries.');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">Void invoice</button>
+  </form>
+  {% endif %}
+</div>
+
+{% if invoice.status == 'sent' %}
+<h2 class="no-print">Record a payment</h2>
+<form method="post" action="{{ url_for('invoices.new_payment', invoice_id=invoice.id) }}" class="no-print">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Date <input type="date" name="date" required></label>
+  <label>Amount <input type="number" step="0.01" min="0.01" name="amount" required></label>
+  <label>Deposited to
+    <select name="account_id" required>
+      {% for a in payment_accounts %}<option value="{{ a.id }}">{{ a.code }} · {{ a.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Method <input type="text" name="method" placeholder="e.g. bank transfer"></label>
+  <button type="submit">Record payment</button>
+</form>
+{% endif %}
+
+{% if invoice.payments %}
+<h2>Payments</h2>
+<table>
+  <thead><tr><th>Date</th><th>Method</th><th class="num">Amount</th></tr></thead>
+  <tbody>
+  {% for p in invoice.payments %}
+    <tr><td>{{ p.date }}</td><td>{{ p.method or "—" }}</td><td class="num">{{ "%.2f"|format(p.amount) }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

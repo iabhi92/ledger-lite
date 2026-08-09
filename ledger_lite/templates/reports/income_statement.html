@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Income statement – Ledger Lite{% endblock %}
+{% block content %}
+<h1>Income statement (profit &amp; loss)</h1>
+<form method="get" class="inline-form no-print">
+  <label>From <input type="date" name="start" value="{{ start }}"></label>
+  <label>To <input type="date" name="end" value="{{ end }}"></label>
+  <button type="submit">Update</button>
+  <a href="{{ url_for('reports.income_statement_view', start=start, end=end, format='csv') }}">Download CSV</a>
+  <button type="button" onclick="window.print()">Print / PDF</button>
+</form>
+
+<h2>Revenue</h2>
+<table>
+  <tbody>
+  {% for a, b in data.revenue %}
+    <tr><td>{{ a.name }}</td><td class="num">{{ "%.2f"|format(b) }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th>Total revenue</th><th class="num">{{ "%.2f"|format(data.total_revenue) }}</th></tr></tfoot>
+</table>
+
+<h2>Expenses</h2>
+<table>
+  <tbody>
+  {% for a, b in data.expenses %}
+    <tr><td>{{ a.name }}</td><td class="num">{{ "%.2f"|format(b) }}</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th>Total expenses</th><th class="num">{{ "%.2f"|format(data.total_expense) }}</th></tr></tfoot>
+</table>
+
+<table>
+  <tfoot><tr><th>Net income</th><th class="num">{{ "%.2f"|format(data.net_income) }}</th></tr></tfoot>
+</table>
+{% endblock %}

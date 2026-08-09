@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Users – Ledger Lite{% endblock %}
+{% block content %}
+<h1>Users</h1>
+
+<form method="post" action="{{ url_for('users.new_user') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Username <input type="text" name="username" required></label>
+  <label>Password <input type="password" name="password" minlength="8" required></label>
+  <label>Role
+    <select name="role" required>
+      <option value="accountant">accountant</option>
+      <option value="owner">owner</option>
+    </select>
+  </label>
+  <button type="submit">Add user</button>
+</form>
+
+<table>
+  <thead><tr><th>Username</th><th>Role</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+    <tr>
+      <td>{{ u.username }}</td>
+      <td>{{ u.role }}</td>
+      <td>{{ "active" if u.is_active else "deactivated" }}</td>
+      <td>
+        {% if u.is_active and u.id != current_user.id %}
+        <form method="post" action="{{ url_for('users.deactivate_user', user_id=u.id) }}" onsubmit="return confirm('Deactivate this user?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit">Deactivate</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

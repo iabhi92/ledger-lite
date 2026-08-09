@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Log in – Ledger Lite{% endblock %}
+{% block content %}
+<div class="auth-box">
+  <h1>Ledger Lite</h1>
+  <p class="muted">Minimal double-entry bookkeeping for small businesses.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Username <input type="text" name="username" required autofocus></label>
+    <label>Password <input type="password" name="password" required></label>
+    <button type="submit">Log in</button>
+  </form>
+</div>
+{% endblock %}
